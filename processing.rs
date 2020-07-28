@@ -33,9 +33,9 @@ fn process(mut preprocessed: Vec<Box<PreprocessedObject>>, config: &Config) -> S
                 if let Option::Some(some_last_command) = &last_command {
                     // Really just to get the values
                     if let PreprocessedObject::Command { command, parms, text, spaces } = some_last_command.deref() {
-                        let result = config.processed_commands.get(command)
+                        let result = config.commands.get(command)
                         .expect(&*format!("The command {} doesn't exist", command))
-                            (&command, &parms, &text, &spaces, &mut blocks);
+                            .run(&command, &parms, &text, &spaces, &mut blocks);
                         processed_content.push(result);
                         blocks = Vec::new();
                     }

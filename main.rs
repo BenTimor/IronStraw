@@ -1,3 +1,5 @@
+mod commands;
+
 use crate::processing::full_process;
 use crate::config::get_config;
 use std::path::Path;
