@@ -1,11 +1,10 @@
+mod utils;
 mod commands;
 
 use crate::processing::full_process;
 use crate::config::get_config;
-use std::path::Path;
-use std::fs::File;
-use std::io::{Read, Write};
 use std::env;
+use crate::utils::{get_file_content, export_content_into_file};
 
 mod processing;
 mod config;
@@ -35,35 +34,3 @@ fn main() {
     }
 }
 
-/// Returns the content of a file
-fn get_file_content(path: &String) -> String {
-    let path_obj = Path::new(path);
-
-    let mut file = match File::open(&path_obj) {
-        Err(why) => panic!("Couldn't open the file {}. Please check again. Error: {}",  &path, why),
-        Ok(file) => file
-    };
-
-    let mut content = String::new();
-    match file.read_to_string(&mut content) {
-        Err(why) => panic!("Couldn't read the file {}. Try again or try another file. Error: {}", &path, why),
-        _ => {}
-    }
-
-    content
-}
-
-/// Exports content into a file
-fn export_content_into_file(path: &String, content: &String) {
-    let path_obj = Path::new(&path);
-
-    let mut file = match File::create(&path_obj) {
-        Err(why) => panic!("Couldn't create the file {}. Error: {}", &path, why),
-        Ok(file) => file
-    };
-
-    match file.write_all(content.as_bytes()) {
-        Err(why) => panic!("Couldn't write into file {}. Error: {}", &path, why),
-        _ => {}
-    }
-}

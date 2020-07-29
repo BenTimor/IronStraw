@@ -48,7 +48,7 @@ pub fn preprocess<'a>(content: &String, config: &Config) -> Vec<Box<Preprocessed
         commands.push(Box::new(PreprocessedObject::Command {
             command: get_command(&line),
             parms: get_parameters(&line),
-            text: get_text(&line).unwrap_or("".to_string()),
+            text: lstrip(&get_text(&line).unwrap_or("".to_string())),
             spaces: current_spaces
         }));
 
