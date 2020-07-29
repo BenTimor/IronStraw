@@ -16,6 +16,7 @@ impl Command for File {
         if process {
             return full_process(&content, &get_config(false));
         }
+
         content
     }
 }

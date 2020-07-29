@@ -1,3 +1,4 @@
+mod terminal;
 mod intofile;
 mod file;
 mod raw;
@@ -13,6 +14,7 @@ use crate::commands::note::Note;
 use crate::commands::loop_command::LoopCommand;
 use crate::commands::file::File;
 use crate::commands::intofile::IntoFile;
+use crate::commands::terminal::Terminal;
 
 /// This trait is used to create new commands.
 pub trait Command {
@@ -41,5 +43,7 @@ pub fn setup_commands(config: &mut Config) {
     config.commands.insert("@file".to_string(), Box::new(File{}));
 
     config.commands.insert("@intofile".to_string(), Box::new(IntoFile{}));
+
+    config.commands.insert("@terminal".to_string(), Box::new(Terminal{}));
 
 }
