@@ -1,3 +1,4 @@
+mod set;
 mod delfile;
 mod terminal;
 mod intofile;
@@ -17,6 +18,7 @@ use crate::commands::file::File;
 use crate::commands::intofile::IntoFile;
 use crate::commands::terminal::Terminal;
 use crate::commands::delfile::DelFile;
+use crate::commands::set::Set;
 
 /// This trait is used to create new commands.
 pub trait Command {
@@ -27,6 +29,18 @@ pub trait Command {
         text: &String, spaces: &usize,
         blocks: &Vec<Box<PreprocessedObject>>
     ) -> String;
+}
+
+/// This trait is used to create new commands which run in the preprocess section.
+pub trait PreprocessedCommand {
+    fn run(
+        &self,
+        command: &String,
+        parameters: &Vec<String>,
+        text: &String, spaces: &usize,
+        blocks: &Vec<Box<PreprocessedObject>>,
+        preprocessed: Vec<Box<PreprocessedObject>>
+    ) -> Vec<Box<PreprocessedObject>>;
 }
 
 pub fn setup_commands(config: &mut Config) {
@@ -50,5 +64,7 @@ pub fn setup_commands(config: &mut Config) {
     config.commands.insert("@delfile".to_string(), Box::new(DelFile{}));
 
     config.commands.insert("@terminal".to_string(), Box::new(Terminal{}));
+
+    config.preprocessed_commands.insert("^set".to_string(), Box::new(Set{}));
 
 }

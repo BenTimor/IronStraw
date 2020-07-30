@@ -1,4 +1,6 @@
 use crate::config::Config;
+use std::ops::Deref;
+use crate::preprocessing::PreprocessedObject::Block;
 
 /// This method is the main preprocessing method.
 /// It takes a content of file and converts it into PreprocessedObjects.
@@ -54,15 +56,72 @@ pub fn preprocess<'a>(content: &String, config: &Config) -> Vec<Box<Preprocessed
 
     }
 
+    // We have to add one more command so it'll run through everything
+    commands.push(Box::new(PreprocessedObject::Command {
+        command: "@".to_string(),
+        parms: vec![],
+        text: "".to_string(),
+        spaces: 0
+    }));
+
+    let mut i = 0;
+    let mut blocks: Vec<Box<PreprocessedObject>> = Vec::new();
+    let mut optional_last_command: Option<Box<PreprocessedObject>> = Option::None{};
+    let mut temporary_commands: Vec<Box<PreprocessedObject>> = Vec::new();
+    // The loop is running until it doesn't find any element. It does it in case some command will change the commands vector size.
+    loop {
+        if !temporary_commands.is_empty() {
+            commands = temporary_commands.clone();
+            temporary_commands = Vec::new();
+        }
+        let optional_object = commands.get(i);
+
+        match optional_object {
+            // If we're at the end of the vector. break.
+            Option::None {} => {
+                break;
+            },
+            Option::Some(object) => {
+                match object.deref() {
+                    // If it's a block, save it for the command. Very similar to process method.
+                    PreprocessedObject::Block { text, spaces } => {
+                        blocks.push(Box::new(Block {text: text.clone(), spaces: spaces.clone()}));
+                    },
+                    PreprocessedObject::Command { command, parms: _, text: _, spaces: _ } => {
+                        // If it's a command and there is a last command:
+                        // it means that we've finished to loop through the blocks of the last command, so we have to run it.
+                        if let Option::Some(last_command) = &optional_last_command {
+                            if let PreprocessedObject::Command { command, parms, text, spaces } = last_command.deref() {
+                                temporary_commands = config.preprocessed_commands.get(command)
+                                    .expect(&*format!("The command {} doesn't exist", command))
+                                    .run(&command, &parms, &text, &spaces, &mut blocks, commands.clone());
+                            }
+                            optional_last_command = Option::None;
+                        }
+
+                        // If it is a command which starts with "^", it's a preprocess command, so run it.
+                        if command.starts_with("^") {
+                            optional_last_command = Option::Some(object.clone());
+                        }
+                    }
+                }
+            }
+        }
+
+        i = i+1;
+    }
+
     commands
 }
 
 /// In the original Straw (which is written in Python) I've used two different classes.
 /// Because Rust don't really like the using of two different classes in a Vec, I've created an enum.
+#[derive(Debug, Clone)]
 pub enum PreprocessedObject {
     Command{command: String, parms: Vec<String>, text: String, spaces: usize},
     Block{text: String, spaces: usize}
 }
+
 
 /// Removes the spaces from the start and the end of the text.
 fn strip(text: &String) -> String {

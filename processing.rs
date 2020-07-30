@@ -8,13 +8,7 @@ pub fn full_process(content: &String, config: &Config) -> String {
 }
 
 /// The process method is taking the result of the preprocessed method and converting it into HTML
-fn process(mut preprocessed: Vec<Box<PreprocessedObject>>, config: &Config) -> String {
-    preprocessed.push(Box::new(PreprocessedObject::Command {
-        command: "@".to_string(),
-        parms: vec![],
-        text: "".to_string(),
-        spaces: 0
-    }));
+fn process(preprocessed: Vec<Box<PreprocessedObject>>, config: &Config) -> String {
     // The blocks of the last command
     let mut blocks: Vec<Box<PreprocessedObject>> = Vec::new();
     // The last command. So when we finish to add blocks, we can run it.
@@ -33,17 +27,26 @@ fn process(mut preprocessed: Vec<Box<PreprocessedObject>>, config: &Config) -> S
                 if let Option::Some(some_last_command) = &last_command {
                     // Really just to get the values
                     if let PreprocessedObject::Command { command, parms, text, spaces } = some_last_command.deref() {
+
+                        // If it's a preprocess command, we already ran it in the preprocessing method.
+                        if command.starts_with("^") {
+                            blocks = Vec::new();
+                            last_command = Option::None;
+                            continue;
+                        }
+
                         let result = config.commands.get(command)
                         .expect(&*format!("The command {} doesn't exist", command))
                             .run(&command, &parms, &text, &spaces, &mut blocks);
                         processed_content.push(result);
                         blocks = Vec::new();
+                        last_command = Option::None;
                     }
-                    last_command = Option::None;
                 }
 
                 // If the command starts with '@' we want to save it as a last command. This is because we want to run it after.
-                if command.starts_with("@") {
+                // Update 30.07.2020: I've added the preprocessed command and I want it to find its blocks so I can ignore both when running the commands.
+                if command.starts_with("@") || command.starts_with("^") {
                     close_html_tags(&mut html_commands, &mut processed_content, &spaces);
                     last_command = Option::Some(object);
                     continue;
