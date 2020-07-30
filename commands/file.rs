@@ -4,7 +4,8 @@ use crate::processing::full_process;
 use crate::config::get_config;
 use crate::utils::get_file_content;
 
-/// Allows you to read a file. If the first parameter is "true", it'll also process the content.
+/// Allows you to read a file.
+/// @file(process_content: bool DEFAULT=false) PATH
 pub struct File {}
 
 impl Command for File {

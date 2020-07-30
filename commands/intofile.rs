@@ -5,8 +5,8 @@ use crate::processing::full_process;
 use crate::config::get_config;
 
 /// Allows you to write into files.
-/// First Parameter = "true" if you want to process the content
-/// Second Parameter = "true" if you want to add Doctype and HTML tag to the file.
+/// @intofile(process_content: bool DEFAULT=false, add_html: bool DEFAULT=false)
+///     CONTENT
 pub struct IntoFile {}
 
 impl Command for IntoFile {

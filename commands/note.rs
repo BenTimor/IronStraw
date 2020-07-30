@@ -3,7 +3,8 @@ use crate::preprocessing::PreprocessedObject;
 use std::ops::Deref;
 
 /// Note command allows you to create HTML notes
-/// For example, @note HEY will create <!-- Hey -->
+/// @note Optional:NOTE
+///     Optional:NOTE
 pub struct Note {}
 
 impl Command for Note {

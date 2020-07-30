@@ -5,6 +5,7 @@ use crate::config::get_config;
 use crate::utils::get_blocks_as_content;
 
 /// Loop allows you to run a statement multiple times
+/// @loop TIMES
 pub struct LoopCommand {}
 
 impl Command for LoopCommand {

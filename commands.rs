@@ -1,3 +1,4 @@
+mod delfile;
 mod terminal;
 mod intofile;
 mod file;
@@ -32,7 +33,8 @@ pub fn setup_commands(config: &mut Config) {
     config.short_commands.insert("//".to_string(), "@straw_note".to_string());
     config.commands.insert("@straw_note".to_string(), Box::new(StrawNote{}));
 
-    config.short_commands.insert(".".to_string(), "@raw".to_string());
+    config.short_commands.insert(".".to_string(), "@raw(false)".to_string());
+    config.short_commands.insert("*".to_string(), "@raw".to_string());
     config.commands.insert("@raw".to_string(), Box::new(Raw{}));
 
     config.short_commands.insert("#".to_string(), "@note".to_string());
