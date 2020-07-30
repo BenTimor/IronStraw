@@ -4,7 +4,7 @@ use std::fs::remove_file;
 
 /// Allows you to remove a file
 /// @delfile PATH
-struct DelFile {}
+pub struct DelFile {}
 
 impl Command for DelFile {
     fn run(&self, _command: &String, _parameters: &Vec<String>, text: &String, _spaces: &usize, _blocks: &Vec<Box<PreprocessedObject>>) -> String {
