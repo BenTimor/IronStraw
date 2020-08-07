@@ -27,7 +27,8 @@ pub trait Command {
         command: &String,
         parameters: &Vec<String>,
         text: &String, spaces: &usize,
-        blocks: &Vec<Box<PreprocessedObject>>
+        blocks: &Vec<Box<PreprocessedObject>>,
+        config: &Config
     ) -> String;
 }
 
@@ -39,7 +40,8 @@ pub trait PreprocessedCommand {
         parameters: &Vec<String>,
         text: &String, spaces: &usize,
         blocks: &Vec<Box<PreprocessedObject>>,
-        preprocessed: Vec<Box<PreprocessedObject>>
+        preprocessed: Vec<Box<PreprocessedObject>>,
+        config: &Config
     ) -> Vec<Box<PreprocessedObject>>;
 }
 

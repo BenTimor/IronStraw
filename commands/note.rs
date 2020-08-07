@@ -1,6 +1,7 @@
 use crate::commands::Command;
 use crate::preprocessing::PreprocessedObject;
 use std::ops::Deref;
+use crate::config::Config;
 
 /// Note command allows you to create HTML notes
 /// @note Optional:NOTE
@@ -8,7 +9,7 @@ use std::ops::Deref;
 pub struct Note {}
 
 impl Command for Note {
-    fn run(&self, _command: &String, _parameters: &Vec<String>, text: &String, _spaces: &usize, blocks: &Vec<Box<PreprocessedObject>>) -> String {
+    fn run(&self, _command: &String, _parameters: &Vec<String>, text: &String, _spaces: &usize, blocks: &Vec<Box<PreprocessedObject>>, _config: &Config) -> String {
         let mut note: Vec<String> = Vec::new();
         note.push("<!--".to_string());
         note.push(text.clone());

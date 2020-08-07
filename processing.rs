@@ -1,6 +1,7 @@
 use crate::preprocessing::{PreprocessedObject, preprocess};
 use crate::config::Config;
 use std::ops::Deref;
+use crate::utils::debug;
 
 /// This method takes the preprocess method and the process method and returns the final result
 pub fn full_process(content: &String, config: &Config) -> String {
@@ -27,6 +28,7 @@ fn process(preprocessed: Vec<Box<PreprocessedObject>>, config: &Config) -> Strin
                 if let Option::Some(some_last_command) = &last_command {
                     // Really just to get the values
                     if let PreprocessedObject::Command { command, parms, text, spaces } = some_last_command.deref() {
+                        debug(format!("processing:process there's a last command {}", &command), &config);
                         let command_object = config.commands.get(command);
                         // If it's a preprocess command, we already ran it in the preprocessing method.
                         if command.starts_with("^") {
@@ -43,8 +45,9 @@ fn process(preprocessed: Vec<Box<PreprocessedObject>>, config: &Config) -> Strin
 
                         // If the command is found, run it.
                         else if command_object.is_some() {
+                            debug(format!("processing:process running processed last command {}", &command), &config);
                             let result = command_object.unwrap()
-                                .run(&command, &parms, &text, &spaces, &mut blocks);
+                                .run(&command, &parms, &text, &spaces, &mut blocks, &config);
                             processed_content.push(result);
                             blocks = Vec::new();
                             last_command = Option::None;
@@ -55,6 +58,7 @@ fn process(preprocessed: Vec<Box<PreprocessedObject>>, config: &Config) -> Strin
                 // If the command starts with '@' we want to save it as a last command. This is because we want to run it after.
                 // Update 30.07.2020: I've added the preprocessed command and I want it to find its blocks so I can ignore both when running the commands.
                 if command.starts_with("@") || command.starts_with("^") {
+                    debug(format!("processing:process saving last command {}", &command), &config);
                     close_html_tags(&mut html_commands, &mut processed_content, &spaces);
                     last_command = Option::Some(object);
                     continue;
@@ -71,6 +75,7 @@ fn process(preprocessed: Vec<Box<PreprocessedObject>>, config: &Config) -> Strin
         }
     }
 
+    debug("processing:process finishing process by closing html tags and join the vector".to_string(), &config);
     close_html_tags(&mut html_commands, &mut processed_content, &0);
 
     processed_content.join("\n")

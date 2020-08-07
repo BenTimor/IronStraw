@@ -1,7 +1,7 @@
 use crate::commands::Command;
 use crate::preprocessing::PreprocessedObject;
 use crate::processing::full_process;
-use crate::config::get_config;
+use crate::config::{get_config, Config};
 use crate::utils::get_blocks_as_content;
 
 /// Allows you to use HTML "as is"
@@ -11,7 +11,7 @@ use crate::utils::get_blocks_as_content;
 pub struct Raw {}
 
 impl Command for Raw {
-    fn run(&self, _command: &String, parameters: &Vec<String>, text: &String, _spaces: &usize, blocks: &Vec<Box<PreprocessedObject>>) -> String {
+    fn run(&self, _command: &String, parameters: &Vec<String>, text: &String, _spaces: &usize, blocks: &Vec<Box<PreprocessedObject>>, config: &Config) -> String {
         let use_tag = parameters.get(0).unwrap_or(&"true".to_string()).eq("true");
         let mut raw: Vec<String> = Vec::new();
 
@@ -23,7 +23,7 @@ impl Command for Raw {
 
         // If we use the tag, we have to the open of the tag in the start and the end of the tag in the end
         if use_tag {
-            let processed_tag = full_process(&text, &get_config(false));
+            let processed_tag = full_process(&text, &get_config(false, config.debug));
             let mut splitted_tag = processed_tag.lines();
 
             // If the amount of the lines is smaller than two, skip

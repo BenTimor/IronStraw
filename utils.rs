@@ -4,6 +4,7 @@ use std::io::{Write, Read};
 use crate::preprocessing::PreprocessedObject;
 use std::ops::Deref;
 use std::panic;
+use crate::config::Config;
 
 /// Returns the content of a file
 pub fn get_file_content(path: &String) -> String {
@@ -83,6 +84,24 @@ pub fn get_argument_parameter(arg: &String, args: &mut Vec<String>) -> Option<St
     result
 }
 
+/// Checks if it has an argument, if it does it removes it (For 'single arguments' like --debug)
+pub fn has_argument_parameter(arg: &String, args: &mut Vec<String>) -> bool {
+    let index = args.iter().position(|x| x.eq_ignore_ascii_case(&arg));
+    if index.is_some() {
+        args.remove(index.unwrap());
+        return true;
+    }
+    false
+}
+
+/// Prints a message if the config has debug=true
+pub fn debug(msg: String, config: &Config) {
+    if config.debug {
+        println!("{}", msg);
+    }
+}
+
+/// Stops the program and prints a message
 pub fn stop_program(message: String) {
     println!("{}", message);
     panic::set_hook(Box::new(|_| {}));

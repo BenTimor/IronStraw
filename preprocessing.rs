@@ -1,6 +1,7 @@
 use crate::config::Config;
 use std::ops::Deref;
 use crate::preprocessing::PreprocessedObject::Block;
+use crate::utils::debug;
 
 /// This method is the main preprocessing method.
 /// It takes a content of file and converts it into PreprocessedObjects.
@@ -26,10 +27,12 @@ pub fn preprocess<'a>(content: &String, config: &Config) -> Vec<Box<Preprocessed
         // If we're in a block, add a Block object. // Look at the 'current_spaces' variable note.
         if block_spaces != 0 {
             if current_spaces > block_spaces {
+                debug(format!("preprocessing.rs::preprocess saving a block | spaces={} | text={}", &current_spaces, &line), &config);
                 commands.push(Box::new(PreprocessedObject::Block {text: line, spaces: current_spaces}));
                 continue;
             }
             else {
+                debug(format!("preprocessing.rs::preprocess getting out of a block"), &config);
                 block_spaces = 0;
             }
         }
@@ -37,6 +40,7 @@ pub fn preprocess<'a>(content: &String, config: &Config) -> Vec<Box<Preprocessed
         // Checking if it's a short command. If it is, then replace it with the long command.
         for (short_command, long_command) in config.short_commands.clone() {
             if line.starts_with(&short_command) {
+                debug(format!("preprocessing.rs::preprocess replacing short command {} with {}", &short_command, &long_command), &config);
                 line = line.replacen(&short_command[..], &format!("{} ", long_command)[..], 1);
                 break;
             }
@@ -44,6 +48,7 @@ pub fn preprocess<'a>(content: &String, config: &Config) -> Vec<Box<Preprocessed
 
         // If it's a command, start a block
         if line.starts_with("@") {
+            debug(format!("preprocessing.rs::preprocess entering into the block of line={}", &line), &config);
             block_spaces = current_spaces;
         }
 
@@ -57,6 +62,7 @@ pub fn preprocess<'a>(content: &String, config: &Config) -> Vec<Box<Preprocessed
     }
 
     // We have to add one more command so it'll run through everything
+    debug("preprocessing.rs::preprocess adding an empty command so it'll add one more iterate".to_string(), &config);
     commands.push(Box::new(PreprocessedObject::Command {
         command: "@".to_string(),
         parms: vec![],
@@ -64,6 +70,7 @@ pub fn preprocess<'a>(content: &String, config: &Config) -> Vec<Box<Preprocessed
         spaces: 0
     }));
 
+    debug("preprocessing.rs::preprocess starting the preprocessed commands".to_string(), &config);
     let mut i = 0;
     let mut blocks: Vec<Box<PreprocessedObject>> = Vec::new();
     let mut optional_last_command: Option<Box<PreprocessedObject>> = Option::None{};
@@ -71,6 +78,7 @@ pub fn preprocess<'a>(content: &String, config: &Config) -> Vec<Box<Preprocessed
     // The loop is running until it doesn't find any element. It does it in case some command will change the commands vector size.
     loop {
         if !temporary_commands.is_empty() {
+            debug("preprocessing.rs::preprocess moving the temporary_commands into the commands".to_string(), &config);
             commands = temporary_commands.clone();
             temporary_commands = Vec::new();
         }
@@ -101,8 +109,9 @@ pub fn preprocess<'a>(content: &String, config: &Config) -> Vec<Box<Preprocessed
                                     continue;
                                 }
 
+                                debug(format!("preprocessing.rs::preprocess running the command {}", &command), &config);
                                 temporary_commands = command_object.unwrap()
-                                    .run(&command, &parms, &text, &spaces, &mut blocks, commands.clone());
+                                    .run(&command, &parms, &text, &spaces, &mut blocks, commands.clone(), &config);
                             }
                             optional_last_command = Option::None;
                         }

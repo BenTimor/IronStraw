@@ -4,7 +4,7 @@ mod commands;
 use crate::processing::full_process;
 use crate::config::{Config, get_config};
 use std::env;
-use crate::utils::{get_file_content, export_content_into_file, create_directory_if_not_exist, get_argument_parameter};
+use crate::utils::{get_file_content, export_content_into_file, create_directory_if_not_exist, get_argument_parameter, has_argument_parameter, debug};
 use std::fs::{metadata, read_dir};
 
 mod processing;
@@ -17,6 +17,12 @@ fn main() {
     args.remove(0);
 
     /* Here comes the main arguments */
+
+    // --debug option
+    let mut to_debug = false;
+    if has_argument_parameter(&"--debug".to_string(), &mut args) {
+        to_debug = true;
+    }
 
     // --target Option
     let mut directory= "./".to_string();
@@ -32,7 +38,7 @@ fn main() {
     // --XML Option
     loop {
         if let Option::Some(arg) = get_argument_parameter(&"--XML".to_string(), &mut args) {
-            compile(&arg, &directory, &get_config(false));
+            compile(&arg, &directory, &get_config(false, to_debug));
         } else {
             break;
         }
@@ -42,7 +48,7 @@ fn main() {
 
     // Call to the compile function for each argument
     for arg in args {
-        compile(&arg, &directory, &get_config(true));
+        compile(&arg, &directory, &get_config(true, to_debug));
     }
 }
 
@@ -58,6 +64,7 @@ fn compile(path: &String, directory: &String, config: &Config) {
     let unwrapped_md = md.unwrap();
     // If it's a dir, take its content and compile recursively
     if unwrapped_md.is_dir() {
+        debug("main.rs::compile entering into a directory.".to_string(), &config);
         let full_directory = format!("{}{}", &directory, &path);
         create_directory_if_not_exist(&full_directory);
         let paths = read_dir(&path).unwrap();
@@ -73,9 +80,11 @@ fn compile(path: &String, directory: &String, config: &Config) {
 fn compile_file(path: &String, directory: &String, config: &Config) {
     // If it's not .sw file, skip
     if !path.ends_with(".sw") {
+        debug(format!("main.rs::compile_file skipping the file {}.", &path), &config);
         return;
     }
 
+    println!("\nStarting to render {}", &path);
     // Getting and processing the content of the file. Adding HTML and Doctype.
     let content = full_process(
         &get_file_content(&path.to_string()),
@@ -90,5 +99,5 @@ fn compile_file(path: &String, directory: &String, config: &Config) {
     // Writing into the new file.
     export_content_into_file(&format!("{}{}.html", &directory, &modified_path), &content);
 
-    println!("{} compiled into {}.html", &path, &modified_path)
+    println!("{} rendered into {}.html\n", &path, &modified_path)
 }

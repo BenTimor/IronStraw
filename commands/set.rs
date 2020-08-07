@@ -1,13 +1,14 @@
 use crate::commands::PreprocessedCommand;
 use crate::preprocessing::PreprocessedObject;
 use std::ops::Deref;
+use crate::config::Config;
 
 /// Allows you to create "variables" by replacing whatever you choose in the file
 /// ^set(from, to)
 pub struct Set {}
 
 impl PreprocessedCommand for Set {
-    fn run(&self, _command: &String, parameters: &Vec<String>, _text: &String, _spaces: &usize, _blocks: &Vec<Box<PreprocessedObject>>, preprocessed: Vec<Box<PreprocessedObject>>) -> Vec<Box<PreprocessedObject>> {
+    fn run(&self, _command: &String, parameters: &Vec<String>, _text: &String, _spaces: &usize, _blocks: &Vec<Box<PreprocessedObject>>, preprocessed: Vec<Box<PreprocessedObject>>, _config: &Config) -> Vec<Box<PreprocessedObject>> {
         let optional_from = parameters.get(0);
         if optional_from.is_none() {
             println!("You have to enter two parameters for ^set command");
