@@ -1,5 +1,5 @@
 use std::path::Path;
-use std::fs::File;
+use std::fs::{File, create_dir_all, metadata};
 use std::io::{Write, Read};
 use crate::preprocessing::PreprocessedObject;
 use std::ops::Deref;
@@ -47,4 +47,29 @@ pub fn get_blocks_as_content(blocks: &Vec<Box<PreprocessedObject>>) -> String {
             "".to_string()
         })
         .collect::<Vec<String>>().join("\n")
+}
+
+/// Creating a directory if it's not exist.
+/// If there's an error, it's printing to the console.
+pub fn create_directory_if_not_exist(directory: &String) {
+    let directory_metadata = metadata(&directory);
+    if directory_metadata.is_err() || directory_metadata.unwrap().is_file() {
+        if create_dir_all(&directory).is_err() {
+            println!("Couldn't create the directory {}", &directory);
+            return;
+        }
+    }
+}
+
+pub fn get_argument_parameter(arg: &String, args: &mut Vec<String>) -> Option<String> {
+    // Find target arg, if there's one
+    let index = args.iter().position(|x| x.eq_ignore_ascii_case(&arg));
+    let mut result: Option<String> = Option::None;
+    // Get the arg itself and remove these args from the vector
+    if index.is_some() {
+        result = Option::Some(args.get(index.unwrap()+1).unwrap().clone());
+        args.remove(index.unwrap());
+        args.remove(index.unwrap());
+    }
+    result
 }
