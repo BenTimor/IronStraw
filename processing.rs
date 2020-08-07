@@ -27,20 +27,28 @@ fn process(preprocessed: Vec<Box<PreprocessedObject>>, config: &Config) -> Strin
                 if let Option::Some(some_last_command) = &last_command {
                     // Really just to get the values
                     if let PreprocessedObject::Command { command, parms, text, spaces } = some_last_command.deref() {
-
+                        let command_object = config.commands.get(command);
                         // If it's a preprocess command, we already ran it in the preprocessing method.
                         if command.starts_with("^") {
                             blocks = Vec::new();
                             last_command = Option::None;
-                            continue;
                         }
 
-                        let result = config.commands.get(command)
-                        .expect(&*format!("The command {} doesn't exist", command))
-                            .run(&command, &parms, &text, &spaces, &mut blocks);
-                        processed_content.push(result);
-                        blocks = Vec::new();
-                        last_command = Option::None;
+                        // If the command is not found, skip.
+                        else if command_object.is_none() {
+                            println!("The command {} in one of your files doesn't exist.", command);
+                            blocks = Vec::new();
+                            last_command = Option::None;
+                        }
+
+                        // If the command is found, run it.
+                        else if command_object.is_some() {
+                            let result = command_object.unwrap()
+                                .run(&command, &parms, &text, &spaces, &mut blocks);
+                            processed_content.push(result);
+                            blocks = Vec::new();
+                            last_command = Option::None;
+                        }
                     }
                 }
 

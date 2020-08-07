@@ -26,11 +26,17 @@ impl Command for Raw {
             let processed_tag = full_process(&text, &get_config(false));
             let mut splitted_tag = processed_tag.lines();
 
+            // If the amount of the lines is smaller than two, skip
+            if splitted_tag.clone().collect::<Vec<&str>>().len() < 2 {
+                println!("The text '{}' of the command @raw is invalid. Skipping.", &text);
+                return "".to_string();
+            }
+
             return format!(
                 "{}\n{}\n{}",
                 splitted_tag.nth(0).unwrap(),
                 raw.join("\n"),
-                splitted_tag.nth(0).expect(&*format!("The text '{}' of the command @raw is invalid.", &text))
+                splitted_tag.nth(0).unwrap()
             );
         }
         else {

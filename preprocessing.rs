@@ -92,8 +92,16 @@ pub fn preprocess<'a>(content: &String, config: &Config) -> Vec<Box<Preprocessed
                         // it means that we've finished to loop through the blocks of the last command, so we have to run it.
                         if let Option::Some(last_command) = &optional_last_command {
                             if let PreprocessedObject::Command { command, parms, text, spaces } = last_command.deref() {
-                                temporary_commands = config.preprocessed_commands.get(command)
-                                    .expect(&*format!("The command {} doesn't exist", command))
+                                let command_object = config.preprocessed_commands.get(command);
+
+                                if command_object.is_none() {
+                                    println!("The preprocessed command {} is not found. Skipping.", &command);
+                                    i=i+1;
+                                    optional_last_command = Option::None;
+                                    continue;
+                                }
+
+                                temporary_commands = command_object.unwrap()
                                     .run(&command, &parms, &text, &spaces, &mut blocks, commands.clone());
                             }
                             optional_last_command = Option::None;

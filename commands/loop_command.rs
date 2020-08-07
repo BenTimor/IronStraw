@@ -12,7 +12,10 @@ impl Command for LoopCommand {
     fn run(&self, _command: &String, _parameters: &Vec<String>, text: &String, _spaces: &usize, blocks: &Vec<Box<PreprocessedObject>>) -> String {
         // The 'text' of the command is the amount of times that the loop has to run
         let times: usize = text.parse::<usize>()
-            .expect(&*format!("The text {} is not a valid number!", text));
+            .unwrap_or({
+                println!("The text {} in @loop command is not a valid number! Skipping.", text);
+                0
+            });
 
         // Taking the blocks, turning them into a String with the same amount of spaces in the start.
         let content: String = get_blocks_as_content(&blocks);

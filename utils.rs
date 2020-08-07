@@ -3,19 +3,23 @@ use std::fs::{File, create_dir_all, metadata};
 use std::io::{Write, Read};
 use crate::preprocessing::PreprocessedObject;
 use std::ops::Deref;
+use std::panic;
 
 /// Returns the content of a file
 pub fn get_file_content(path: &String) -> String {
     let path_obj = Path::new(path);
 
     let mut file = match File::open(&path_obj) {
-        Err(why) => panic!("Couldn't open the file {}. Please check again. Error: {}",  &path, why),
+        Err(_) => {
+            stop_program(format!("Couldn't open the file {}. Please check again.",  &path));
+            panic!()
+        },
         Ok(file) => file
     };
 
     let mut content = String::new();
     match file.read_to_string(&mut content) {
-        Err(why) => panic!("Couldn't read the file {}. Try again or try another file. Error: {}", &path, why),
+        Err(_) => stop_program(format!("Couldn't read the file {}. Try again or try another file.", &path)),
         _ => {}
     }
 
@@ -27,12 +31,15 @@ pub fn export_content_into_file(path: &String, content: &String) {
     let path_obj = Path::new(&path);
 
     let mut file = match File::create(&path_obj) {
-        Err(why) => panic!("Couldn't create the file {}. Error: {}", &path, why),
+        Err(_) => {
+            stop_program(format!("Couldn't create the file {}.", &path));
+            panic!()
+        },
         Ok(file) => file
     };
 
     match file.write_all(content.as_bytes()) {
-        Err(why) => panic!("Couldn't write into file {}. Error: {}", &path, why),
+        Err(_) => stop_program(format!("Couldn't write into file {}.", &path)),
         _ => {}
     }
 }
@@ -55,12 +62,14 @@ pub fn create_directory_if_not_exist(directory: &String) {
     let directory_metadata = metadata(&directory);
     if directory_metadata.is_err() || directory_metadata.unwrap().is_file() {
         if create_dir_all(&directory).is_err() {
-            println!("Couldn't create the directory {}", &directory);
-            return;
+            stop_program(format!("Couldn't create the directory {}", &directory));
         }
     }
 }
 
+/// Returns a parameter which is given by the system arguments
+/// For example, if there's "--XML file" it'll return "file"
+/// Additionally, it removes these arguments from the vector.
 pub fn get_argument_parameter(arg: &String, args: &mut Vec<String>) -> Option<String> {
     // Find target arg, if there's one
     let index = args.iter().position(|x| x.eq_ignore_ascii_case(&arg));
@@ -72,4 +81,10 @@ pub fn get_argument_parameter(arg: &String, args: &mut Vec<String>) -> Option<St
         args.remove(index.unwrap());
     }
     result
+}
+
+pub fn stop_program(message: String) {
+    println!("{}", message);
+    panic::set_hook(Box::new(|_| {}));
+    panic!();
 }

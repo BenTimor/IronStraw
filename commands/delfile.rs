@@ -8,7 +8,9 @@ pub struct DelFile {}
 
 impl Command for DelFile {
     fn run(&self, _command: &String, _parameters: &Vec<String>, text: &String, _spaces: &usize, _blocks: &Vec<Box<PreprocessedObject>>) -> String {
-        remove_file(text).expect(&*format!("Couldn't delete the file {}", &text));
+        if remove_file(text).is_err() {
+            println!("Couldn't delete the file {} with the command @delfile", &text)
+        }
         "".to_string()
     }
 }

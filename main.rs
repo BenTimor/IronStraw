@@ -18,6 +18,7 @@ fn main() {
 
     /* Here comes the main arguments */
 
+    // --target Option
     let mut directory= "./".to_string();
     // If the argument of the target exist, change the target directory
     if let Option::Some(arg) = get_argument_parameter(&"--target".to_string(), &mut args) {
@@ -28,6 +29,7 @@ fn main() {
         }
     }
 
+    // --XML Option
     loop {
         if let Option::Some(arg) = get_argument_parameter(&"--XML".to_string(), &mut args) {
             compile(&arg, &directory, &get_config(false));
