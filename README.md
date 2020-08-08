@@ -71,7 +71,9 @@ You use both of the commands in the same way:
 Allows you to create HTML notes (<!-- ->).
 
 **Parameters:** The command ignores the parameters so you can put there whatever you want.
+
 **Text and block:** The text and the block will be written inside the HTML note.
+
 **Short Command:** # *Note*
 
 ---
@@ -130,6 +132,7 @@ Allows you to run specific code multiple times. It also renders the content.
 1. Render the content of the file | Boolean | Default false
 
 **Text:** The number of times you want it to run
+
 **Block:** The code you want to run multiple times
 
 ---
@@ -161,8 +164,11 @@ HTML:
 
 Allows you to run terminal commands. It puts the output in the file.
 
-**Parameters:** None
+**Parameters:**
+1. Return the output | Boolean (true/false) | Default true.
+
 **Text:** The command you want to run
+
 **Block:** None
 
 ---
@@ -176,6 +182,7 @@ Reading a file into your code.
 1. Render the content of the file | Boolean | Default false
 
 **Text:** Path
+
 **Block:** None
 
 ---
@@ -189,6 +196,7 @@ Writing a content into a file.
 1. Render the content of the file | Boolean | Default false
 
 **Text:** Path
+
 **Block:** The content you want to write into the file.
 
 ---
@@ -198,5 +206,7 @@ Writing a content into a file.
 Deleting a file.
 
 **Parameters:** None
+
 **Text:** Path
+
 **Block:** None
