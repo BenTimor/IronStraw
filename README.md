@@ -125,7 +125,10 @@ XML:
 ---
 Allows you to run specific code multiple times. It also renders the content.
 
-**Parameters:** None
+**Parameters:**
+
+1. Render the content of the file | Boolean | Default false
+
 **Text:** The number of times you want it to run
 **Block:** The code you want to run multiple times
 
